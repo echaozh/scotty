@@ -76,7 +76,7 @@ notFound action = matchAny (Function (\req -> Just [("path", path req)])) (statu
 addroute :: (ScottyError e, MonadIO m) => StdMethod -> RoutePattern -> ActionT e m () -> ScottyT e m ()
 addroute method pat action = ScottyT $ MS.modify $ \s -> addRoute (route (handler s) method pat action) s
 
-route :: (ScottyError e, MonadIO m) => ErrorHandler e m -> StdMethod -> RoutePattern -> ActionT e m () -> Middleware m
+route :: (ScottyError e, MonadIO m) => ErrorHandler e m -> StdMethod -> RoutePattern -> ActionT e m () -> ScottyMiddleware m
 route h method pat action app req =
     let tryNext = app req
     in if Right method == parseMethod (requestMethod req)

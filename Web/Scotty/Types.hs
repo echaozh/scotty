@@ -32,14 +32,14 @@ instance Default Options where
     def = Options 1 defaultSettings
 
 ----- Transformer Aware Applications/Middleware -----
-type Middleware m = Application m -> Application m
-type Application m = Request -> m Response
+type ScottyMiddleware m = ScottyApplication m -> ScottyApplication m
+type ScottyApplication m = Request -> m Response
 
 --------------- Scotty Applications -----------------
 data ScottyState e m = 
     ScottyState { middlewares :: [Wai.Middleware]
-                , routes :: [Middleware m]
-                , scottyMiddlewares :: [Middleware m]
+                , routes :: [ScottyMiddleware m]
+                , scottyMiddlewares :: [ScottyMiddleware m]
                 , handler :: ErrorHandler e m
                 }
 
@@ -49,10 +49,10 @@ instance Monad m => Default (ScottyState e m) where
 addMiddleware :: Wai.Middleware -> ScottyState e m -> ScottyState e m
 addMiddleware m s@(ScottyState {middlewares = ms}) = s { middlewares = m:ms }
 
-addRoute :: Monad m => Middleware m -> ScottyState e m -> ScottyState e m
+addRoute :: Monad m => ScottyMiddleware m -> ScottyState e m -> ScottyState e m
 addRoute r s@(ScottyState {routes = rs}) = s { routes = r:rs }
 
-addScottyMiddleware :: Monad m => Middleware m -> ScottyState e m -> ScottyState e m
+addScottyMiddleware :: Monad m => ScottyMiddleware m -> ScottyState e m -> ScottyState e m
 addScottyMiddleware m s@(ScottyState {scottyMiddlewares = ms}) = s { scottyMiddlewares = m:ms }
 
 addHandler :: ErrorHandler e m -> ScottyState e m -> ScottyState e m
