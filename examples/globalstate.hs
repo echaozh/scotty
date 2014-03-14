@@ -84,7 +84,7 @@ app = do
 -- Log tick count after every request, but before the 'logStdoutDev'
 -- logs the status. As you can see, it can access AppState.
 -- However, unlike in actions, you do not need 'WebM' to lift state accessing.
-logTickCount :: Application WebM -> Application WebM
+logTickCount :: ScottyApplication WebM -> ScottyApplication WebM
 logTickCount a req = do
   r <- a req
   c <- gets tickCount

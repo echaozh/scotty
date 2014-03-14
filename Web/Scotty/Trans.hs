@@ -33,7 +33,7 @@ module Web.Scotty.Trans
       -- * Types
     , RoutePattern, File
       -- * Monad Transformers
-    , ScottyT, ActionT, Scotty.Middleware, Scotty.Application
+    , ScottyT, ActionT, ScottyMiddleware, ScottyApplication
     ) where
 
 import Blaze.ByteString.Builder (fromByteString)
@@ -50,8 +50,7 @@ import Network.Wai.Handler.Warp (Port, runSettings, setPort, getPort)
 
 import Web.Scotty.Action
 import Web.Scotty.Route
-import Web.Scotty.Types hiding (Application, Middleware)
-import qualified Web.Scotty.Types as Scotty
+import Web.Scotty.Types
 
 -- | Run a scotty application using the warp server.
 -- NB: 'scotty p' === 'scottyT p id id'
@@ -91,7 +90,7 @@ scottyAppT runM runActionToIO defs = do
         rapp  = runActionToIO . chain rapp' (scottyMiddlewares s)
     return $ chain rapp (middlewares s)
 
-notFoundApp :: Monad m => Scotty.Application m
+notFoundApp :: Monad m => ScottyApplication m
 notFoundApp _ = return $ responseBuilder status404 [("Content-Type","text/html")]
                        $ fromByteString "<h1>404: File Not Found!</h1>"
 
@@ -114,5 +113,5 @@ middleware = ScottyT . modify . addMiddleware
 --
 -- Scotty middlewares are different from WAI middlewares, as they can access the
 -- state in the monad wrapped by 'ScottyT'.
-scottyMiddleware :: Monad m => Scotty.Middleware m -> ScottyT e m ()
+scottyMiddleware :: Monad m => ScottyMiddleware m -> ScottyT e m ()
 scottyMiddleware = ScottyT . modify . addScottyMiddleware
